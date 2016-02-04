@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Tools.Publish
 
             foreach (var project in ProjectContexts)
             {
-                if (PublishProjectContext(project, BuildBasePath, OutputPath, Configuration, NativeSubdirectories))
+                if (PublishProjectContext(project, BuildBasePath, OutputPath, Configuration, NativeSubdirectories, Crossgen))
                 {
                     NumberOfPublishedProjects++;
                 }
@@ -83,7 +83,12 @@ namespace Microsoft.DotNet.Tools.Publish
         /// <param name="configuration">Debug or Release</param>
         /// <param name="nativeSubdirectories"></param>
         /// <returns>Return 0 if successful else return non-zero</returns>
-        private static bool PublishProjectContext(ProjectContext context, string buildBasePath, string outputPath, string configuration, bool nativeSubdirectories)
+        private static bool PublishProjectContext(ProjectContext context,
+            string buildBasePath,
+            string outputPath,
+            string configuration,
+            bool nativeSubdirectories,
+            bool crossgen)
         {
             Reporter.Output.WriteLine($"Publishing {context.RootProject.Identity.Name.Yellow()} for {context.TargetFramework.DotNetFrameworkName.Yellow()}/{context.RuntimeIdentifier.Yellow()}");
 
@@ -154,7 +159,7 @@ namespace Microsoft.DotNet.Tools.Publish
                 }
             }
 
-            if (Crossgen)
+            if (crossgen)
             {
                 Reporter.Output.WriteLine($"Generating native images for {context.ProjectFile.Name.Bold()}...");
 
@@ -168,6 +173,7 @@ namespace Microsoft.DotNet.Tools.Publish
 
                 if (!results.All(r => r))
                 {
+                    Reporter.Error.WriteLine("Generating native images failed.");
                     return false;
                 }
             }

@@ -8,9 +8,9 @@ namespace Microsoft.DotNet.Cli.Utils
 {
     public class DotNetCommandFactory : ICommandFactory
     {
-        public ICommand Create(string commandName, IEnumerable<string> args, NuGetFramework framework = null)
+        public ICommand Create(string commandName, IEnumerable<string> args, NuGetFramework framework = null, string runtimeIdentifer = null)
         {
-            return Command.CreateDotNet(commandName, args, framework);
+            return Command.CreateDotNet(commandName, args, framework, runtimeIdentifer);
         }
     }
 }

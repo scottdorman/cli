@@ -94,7 +94,7 @@ namespace Microsoft.DotNet.Cli.Utils
 
             if (string.IsNullOrEmpty(runtimeIdentifier))
             {
-                return ProjectContext.Create(projectRootPath, framework);
+                return ProjectContext.Create(projectRootPath, framework, PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers());
             }
 
             return ProjectContext.Create(projectRootPath, framework, new[] { runtimeIdentifier });
