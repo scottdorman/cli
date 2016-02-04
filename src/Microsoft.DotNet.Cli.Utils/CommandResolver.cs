@@ -13,10 +13,10 @@ namespace Microsoft.DotNet.Cli.Utils
 {
     internal static class CommandResolver
     {
-        public static CommandSpec TryResolveCommandSpec(string commandName, IEnumerable<string> args, NuGetFramework framework = null)
+        public static CommandSpec TryResolveCommandSpec(string commandName, IEnumerable<string> args, NuGetFramework framework = null, string runtimeIdentifier = null)
         {
             return ResolveFromRootedCommand(commandName, args) ??
-                   ResolveFromProjectDependencies(commandName, args, framework) ??
+                   ResolveFromProjectDependencies(commandName, args, framework, runtimeIdentifier) ??
                    ResolveFromProjectTools(commandName, args) ??
                    ResolveFromAppBase(commandName, args) ??
                    ResolveFromPath(commandName, args);
@@ -66,11 +66,11 @@ namespace Microsoft.DotNet.Cli.Utils
         }
 
         public static CommandSpec ResolveFromProjectDependencies(string commandName, IEnumerable<string> args,
-            NuGetFramework framework)
+            NuGetFramework framework, string runtimeIdentifier)
         {
             if (framework == null) return null;
 
-            var projectContext = GetProjectContext(framework);
+            var projectContext = GetProjectContext(framework, runtimeIdentifier);
 
             if (projectContext == null) return null;
 
@@ -83,7 +83,7 @@ namespace Microsoft.DotNet.Cli.Utils
             return ConfigureCommandFromPackage(commandName, args, commandPackage, projectContext, depsPath);
         }
 
-        private static ProjectContext GetProjectContext(NuGetFramework framework)
+        private static ProjectContext GetProjectContext(NuGetFramework framework, string runtimeIdentifier = null)
         {
             var projectRootPath = Directory.GetCurrentDirectory();
 
@@ -92,8 +92,12 @@ namespace Microsoft.DotNet.Cli.Utils
                 return null;
             }
 
-            var projectContext = ProjectContext.Create(projectRootPath, framework, PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers());
-            return projectContext;
+            if (string.IsNullOrEmpty(runtimeIdentifier))
+            {
+                return ProjectContext.Create(projectRootPath, framework);
+            }
+
+            return ProjectContext.Create(projectRootPath, framework, new[] { runtimeIdentifier });
         }
 
         private static PackageDescription GetCommandPackage(ProjectContext projectContext, string commandName)
