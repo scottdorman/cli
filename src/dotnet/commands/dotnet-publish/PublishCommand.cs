@@ -167,6 +167,8 @@ namespace Microsoft.DotNet.Tools.Publish
                 {
                     var crossgenResult = Command.Create("crossgen", new[] { "-platform_assemblies_paths", outputPath, path }, FrameworkConstants.CommonFrameworks.DnxCore50)
                         .WorkingDirectory(outputPath)
+                        .ForwardStdErr()
+                        .ForwardStdOut(onlyIfVerbose: true)
                         .Execute();
                     return crossgenResult.ExitCode == 0;
                 });
